@@ -35,7 +35,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `events` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `name` varchar(255) NOT NULL,
   `regno` varchar(255) NOT NULL,
   `year` varchar(255) NOT NULL,
@@ -53,14 +53,14 @@ CREATE TABLE IF NOT EXISTS `events` (
 --
 
 CREATE TABLE IF NOT EXISTS `groupevents` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `teamname` varchar(255) NOT NULL,
   `teamleadname` varchar(255) NOT NULL,
   `tregno` varchar(255) NOT NULL,
   `temail` varchar(255) NOT NULL,
   `events` varchar(255) NOT NULL,
   `type` varchar(255) NOT NULL DEFAULT 'Group',
-  `tmembername` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`tmembername`)),
+  `tmembername` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `year` varchar(255) NOT NULL,
   `phoneno` varchar(255) NOT NULL,
   `dept` varchar(255) NOT NULL,
@@ -74,8 +74,8 @@ CREATE TABLE IF NOT EXISTS `groupevents` (
 --
 
 CREATE TABLE IF NOT EXISTS `login` (
-  `id` int(11) NOT NULL,
-  `userid` varchar(255) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `userid` varchar(255) NOT NULL UNIQUE,
   `password` varchar(255) NOT NULL,
   `role` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
