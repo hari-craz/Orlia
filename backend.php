@@ -1,8 +1,17 @@
 <?php
+header('Content-Type: application/json');
 include "db.php";
 
 if (isset($_POST['Add_newuser'])) {
     try {
+        // Validate required fields
+        $required_fields = ['fullName', 'rollNumber', 'year', 'mailid', 'phoneNumber', 'department', 'daySelection', 'events'];
+        foreach ($required_fields as $field) {
+            if (empty($_POST[$field])) {
+                throw new Exception("Missing required field: $field");
+            }
+        }
+        
         $name = mysqli_real_escape_string($conn, $_POST['fullName']);
         $rollno = mysqli_real_escape_string($conn, $_POST['rollNumber']);
         $year = mysqli_real_escape_string($conn, $_POST['year']);
@@ -11,7 +20,6 @@ if (isset($_POST['Add_newuser'])) {
         $dept = mysqli_real_escape_string($conn, $_POST['department']);
         $day = mysqli_real_escape_string($conn, $_POST['daySelection']);
         $events = mysqli_real_escape_string($conn, $_POST['events']);
-
 
         $query = "INSERT INTO events (name, regno, year, phoneno, dept, day, events, mail) VALUES ('$name', '$rollno', '$year', '$phoneno', '$dept', '$day', '$events','$mail')";
         if (mysqli_query($conn, $query)) {
@@ -28,8 +36,10 @@ if (isset($_POST['Add_newuser'])) {
             'status' => 500,
             'message' => 'Error: ' . $e->getMessage()
         ];
+        error_log('Registration Error: ' . $e->getMessage());
         echo json_encode($res);
     }
+    exit;
 }
 
 if (isset($_POST['groupnewuser'])) {

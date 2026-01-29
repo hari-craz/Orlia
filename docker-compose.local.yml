@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   web:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: orlia-web
+    container_name: orlia-web-local
     ports:
       - "8095:80"
     depends_on:
@@ -22,14 +20,13 @@ services:
 
   db:
     image: mariadb:10.6
-    container_name: orlia-db
+    container_name: orlia-db-local
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: orlia
     volumes:
       - orlia-db-data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    # No external port exposed - accessible only within Docker network
     networks:
       - orlia-network
     restart: unless-stopped
@@ -41,7 +38,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin:latest
-    container_name: orlia-phpmyadmin
+    container_name: orlia-phpmyadmin-local
     ports:
       - "8096:80"
     environment:
