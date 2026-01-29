@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   web:
-    build: .
+    image: php:8.2-apache
     container_name: orlia-web
     ports:
       - "8095:80"
@@ -14,6 +14,10 @@ services:
       - DB_USER=root
       - DB_PASSWORD=rootpassword
       - DB_NAME=orlia
+    volumes:
+      - ./:/var/www/html
+    command: >
+      bash -c "docker-php-ext-install mysqli && docker-php-ext-enable mysqli && apache2-foreground"
     networks:
       - orlia-network
     restart: unless-stopped
