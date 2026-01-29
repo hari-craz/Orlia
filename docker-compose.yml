@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: orlia-web
+    ports:
+      - "8095:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=rootpassword
+      - DB_NAME=orlia
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - orlia-network
+    restart: unless-stopped
+
+  db:
+    image: mariadb:10.4
+    container_name: orlia-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: orlia
+    volumes:
+      - orlia-db-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    # No external port exposed - accessible only within Docker network
+    networks:
+      - orlia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: orlia-phpmyadmin
+    ports:
+      - "8096:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
+    depends_on:
+      - db
+    networks:
+      - orlia-network
+    restart: unless-stopped
+
+networks:
+  orlia-network:
+    driver: bridge
+
+volumes:
+  orlia-db-data:
