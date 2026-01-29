@@ -24,10 +24,9 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: orlia
+      MYSQL_INITDB_SKIP_TZINFO: "yes"
     volumes:
       - orlia-db-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    # No external port exposed - accessible only within Docker network
     networks:
       - orlia-network
     restart: unless-stopped
@@ -36,6 +35,22 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    command: --default-authentication-plugin=mysql_native_password
+
+  db-init:
+    image: mariadb:10.6
+    container_name: orlia-db-init
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      MYSQL_PWD: rootpassword
+    volumes:
+      - ./init.sql:/init.sql
+    networks:
+      - orlia-network
+    command: mysql -h db -u root orlia < /init.sql
+    restart: "no"
 
   phpmyadmin:
     image: phpmyadmin:latest
