@@ -14,8 +14,6 @@ services:
       - DB_USER=root
       - DB_PASSWORD=rootpassword
       - DB_NAME=orlia
-    volumes:
-      - ./:/var/www/html
     networks:
       - orlia-network
     restart: unless-stopped

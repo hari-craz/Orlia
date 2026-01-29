@@ -6,6 +6,15 @@ RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Configure Apache to allow .htaccess and set DirectoryIndex
+RUN echo '<Directory /var/www/html>\n\
+    Options Indexes FollowSymLinks\n\
+    AllowOverride All\n\
+    Require all granted\n\
+    DirectoryIndex index.html index.php\n\
+</Directory>' > /etc/apache2/conf-available/custom.conf \
+    && a2enconf custom
+
 # Set working directory
 WORKDIR /var/www/html
 
