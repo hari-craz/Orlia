@@ -21,7 +21,7 @@ services:
     restart: unless-stopped
 
   db:
-    image: mariadb:10.4
+    image: mariadb:10.6
     container_name: orlia-db
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
@@ -34,7 +34,7 @@ services:
       - orlia-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
       interval: 10s
       timeout: 5s
       retries: 5
