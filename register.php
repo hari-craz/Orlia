@@ -113,7 +113,7 @@
         e.preventDefault();
         var Formdata = new FormData(this);
         Formdata.append("Add_newuser", true);
-        console.log(Formdata)
+        console.log("Form submitted");
         $.ajax({
             url: "backend.php",
             method: "POST",
@@ -121,31 +121,39 @@
             processData: false,
             contentType: false,
             success: function(response) {
-                console.log("Response:", response);
-                var res = jQuery.parseJSON(response);
-                console.log("Parsed Response:", res);
-                if (res.status == 200) {
-                    $('#registerForm')[0].reset();
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            title: "Good job!",
-                            text: "You Register for the Events",
-                            icon: "success"
-                        });
-                    } else {
-                        alert("Registration Successful!");
+                console.log("AJAX Success - Response:", response);
+                try {
+                    var res = jQuery.parseJSON(response);
+                    console.log("Parsed Response:", res);
+                    
+                    if (res.status == 200) {
+                        console.log("Registration successful!");
+                        $('#registerForm')[0].reset();
+                        
+                        // Show alert - simple and reliable
+                        alert("✓ Registration Successful!\nYou have registered for the event.");
+                        
+                        // Also try SweetAlert if available
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                title: "Success!",
+                                text: "You have registered for the event",
+                                icon: "success",
+                                timer: 3000
+                            });
+                        }
+                    } else if (res.status == 500) {
+                        console.error("Registration error:", res.message);
+                        alert("❌ Error: " + res.message);
                     }
-                } else if (res.status == 500) {
-                    $('#registerForm')[0].reset();
-                    console.error("Error:", res.message);
-                    alert("Error: " + res.message);
+                } catch(e) {
+                    console.error("JSON Parse Error:", e);
+                    alert("Error parsing response: " + e.message);
                 }
             },
             error: function(xhr, status, error) {
-                console.error("AJAX Error:", error);
-                console.error("Status:", status);
-                console.error("Response:", xhr.responseText);
-                alert("Error: " + error);
+                console.error("AJAX Error:", {error, status, response: xhr.responseText});
+                alert("❌ AJAX Error: " + error);
             }
         });
     });
