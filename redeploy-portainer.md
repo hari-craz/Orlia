@@ -1,48 +1,61 @@
-# Deploy Orlia on Portainer - COMPLETE GUIDE
+# Deploy Orlia on Portainer (TrueNAS)
 
-## Method 1: Using Portainer Web UI (EASIEST)
+## Quick Deploy (Using Portainer Web UI)
 
-### Step 1: Remove the old stack
-1. Open Portainer web interface
-2. Go to **Stacks** from the left menu
-3. Find your **Orlia** stack
-4. Click on it, then click **Stop this stack**
-5. After it stops, click **Remove this stack**
-6. **IMPORTANT**: Check the box ✅ **"Remove associated volumes"**
-7. Click confirm
+### Step 1: Remove Old Stack (If Exists)
+1. Open Portainer: `http://your-truenas-ip:9000`
+2. Go to **Stacks** from left menu
+3. If "orlia" stack exists:
+   - Click on it
+   - Click **Stop this stack**
+   - Click **Remove this stack**
+   - ✅ **CHECK** "Remove associated volumes"
+   - Confirm removal
 
-### Step 2: Create new stack
+### Step 2: Deploy New Stack from GitHub
+
 1. Click **+ Add stack**
-2. Name it: `orlia`
-3. Build method: **Repository**
-4. Repository URL: `https://github.com/hari-craz/Orlia`
-5. Repository reference: `refs/heads/master`
-6. Compose path: `docker-compose.yml`
-7. Click **Deploy the stack**
+2. **Name**: `orlia`
+3. **Build method**: Select **Repository**
+4. Fill in repository details:
+   - **Repository URL**: `https://github.com/hari-craz/Orlia`
+   - **Repository reference**: `refs/heads/master`
+   - **Compose path**: `docker-compose.yml`
+5. Click **Deploy the stack**
 
-### Step 3: Wait and verify
-1. Wait 30 seconds for containers to start
-2. Visit: `http://your-server:8095/test_db.php`
-3. Should show: `"status": "success"` and 3 tables
+### Step 3: Wait and Verify
+
+1. Wait 30-45 seconds for containers to start and database to initialize
+2. Check containers are running:
+   - `orlia-web` - Running
+   - `orlia-db` - Healthy
+   - `orlia-phpmyadmin` - Running
+
+3. **Test the deployment**:
+   - Database test: `http://your-truenas-ip:8095/test_db.php`
+   - Should show: `"status": "success"` with 3 tables
+   - Main site: `http://your-truenas-ip:8095/`
+   - phpMyAdmin: `http://your-truenas-ip:8096/`
 
 ---
 
-## Method 2: Using SSH/Terminal (ADVANCED)
+## Method 2: SSH Deployment (Advanced)
 
-SSH into your Portainer host and run:
+If you have SSH access to your TrueNAS server:
 
 ```bash
-# Navigate to where you want to deploy
-cd /opt/orlia  # or wherever you want
+# SSH into TrueNAS
+ssh root@your-truenas-ip
 
-# Clone or pull the repo
+# Navigate to apps directory (adjust path as needed)
+cd /mnt/your-pool/apps
+
+# Clone or update repository
 git clone https://github.com/hari-craz/Orlia.git
-cd Orlia
-
 # OR if already cloned:
-# git pull
+cd Orlia && git pull
 
-# Stop and remove everything including volumes
+# Stop and remove old containers and volumes
 docker-compose down -v
 
 # Remove any orphaned volumes
@@ -54,8 +67,8 @@ docker-compose build --no-cache
 # Start everything
 docker-compose up -d
 
-# Wait for database to initialize
-echo "Waiting 30 seconds for database initialization..."
+# Wait for database initialization
+echo "Waiting 30 seconds for database..."
 sleep 30
 
 # Test the connection
@@ -66,28 +79,110 @@ curl http://localhost:8095/test_db.php
 
 ## Troubleshooting
 
-### If tables still don't exist:
-```bash
-# Connect to database container
-docker exec -it orlia-db mariadb -uroot -prootpassword orlia
+### Tables don't exist after deployment
 
-# Then run these SQL commands:
+The database initialization only runs when the volume is empty. If you're redeploying:
+
+```bash
+# Method 1: Import SQL directly
+docker exec -it orlia-db mariadb -uroot -prootpassword orlia < /docker-entrypoint-initdb.d/init.sql
+
+# Method 2: Run from inside container
+docker exec -it orlia-db mariadb -uroot -prootpassword orlia
 SOURCE /docker-entrypoint-initdb.d/init.sql;
 exit;
+
+# Method 3: Via phpMyAdmin
+# Visit http://your-ip:8096
+# Login: root / rootpassword
+# Select 'orlia' database
+# Click SQL tab
+# Import the init.sql file
 ```
 
-### Check logs:
+### Check container logs
+
 ```bash
+# Database logs
 docker logs orlia-db
+
+# Web server logs
 docker logs orlia-web
+
+# phpMyAdmin logs
+docker logs orlia-phpmyadmin
 ```
 
-### Verify tables exist:
+### Verify tables exist
+
 ```bash
 docker exec -it orlia-db mariadb -uroot -prootpassword -e "USE orlia; SHOW TABLES;"
 ```
 
+Should show:
+- events
+- groupevents
+- login
+
+### Port conflicts
+
+If ports 8095 or 8096 are already in use, modify `docker-compose.yml`:
+
+```yaml
+services:
+  web:
+    ports:
+      - "8095:80"  # Change 8095 to another port like 8097
+  phpmyadmin:
+    ports:
+      - "8096:80"  # Change 8096 to another port like 8098
+```
+
 ---
 
-## Why the volume must be removed:
-The `init.sql` ONLY runs when MariaDB starts with an **empty data directory**. If the volume already has old data, it won't re-initialize. That's why you must remove the volume first.
+## Accessing the Application
+
+Once deployed:
+
+- **Main Website**: `http://your-truenas-ip:8095/`
+- **Event Registration**: `http://your-truenas-ip:8095/register.php`
+- **Group Registration**: `http://your-truenas-ip:8095/groupregister.php`
+- **Admin Dashboard**: `http://your-truenas-ip:8095/dashboard.php`
+- **phpMyAdmin**: `http://your-truenas-ip:8096/`
+
+---
+
+## Database Credentials
+
+- **Database Host**: `db` (internal docker network)
+- **Database Name**: `orlia`
+- **Username**: `root`
+- **Password**: `rootpassword`
+
+**⚠️ IMPORTANT**: Change the default password in production!
+
+Edit `docker-compose.yml`:
+```yaml
+db:
+  environment:
+    MYSQL_ROOT_PASSWORD: your-secure-password  # Change this!
+```
+
+And update in the web service:
+```yaml
+web:
+  environment:
+    DB_PASSWORD: your-secure-password  # Match the above!
+```
+
+---
+
+## Why Volume Removal is Critical
+
+The MariaDB init scripts (`init.sql`) **ONLY execute when the data directory is empty**. If you're updating the database schema:
+
+1. You MUST remove the volume first
+2. Or manually import the SQL after deployment
+3. Otherwise, old schema/data persists
+
+This is why "Remove associated volumes" must be checked when redeploying!
