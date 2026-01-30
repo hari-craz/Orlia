@@ -130,33 +130,40 @@
             success: function(response) {
                 console.log("Response received:", response);
                 
-                try {
-                    var res = JSON.parse(response);
-                    console.log("Parsed JSON:", res);
-                    
-                    if (res.status == 200) {
-                        console.log("Success! Showing alert...");
-                        $('#registerForm')[0].reset();
-                        
-                        // Always show this basic alert first
-                        alert("✓ Registration Successful!\nYour registration has been saved.");
-                        
-                        // Then try SweetAlert
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                title: "Success!",
-                                text: "You have registered for the event!",
-                                icon: "success",
-                                timer: 3000
-                            });
-                        }
-                    } else {
-                        console.log("Error response:", res);
-                        alert("Error: " + (res.message || "Unknown error"));
+                // jQuery automatically parses JSON if Content-Type is application/json
+                var res = response;
+                
+                // If response is a string, parse it
+                if (typeof response === 'string') {
+                    try {
+                        res = JSON.parse(response);
+                    } catch(e) {
+                        console.error("JSON parse error:", e);
+                        alert("Invalid JSON response");
+                        return;
                     }
-                } catch(parseError) {
-                    console.error("Parse error:", parseError);
-                    alert("Response parse error: " + parseError.message + "\nRaw: " + response);
+                }
+                
+                console.log("Response object:", res);
+                
+                if (res.status == 200) {
+                    console.log("Success! Showing alert...");
+                    $('#registerForm')[0].reset();
+                    
+                    // Show SweetAlert if available, otherwise basic alert
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: "Success!",
+                            text: "You have registered for the event!",
+                            icon: "success",
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        alert("✓ Registration Successful!\nYou have registered for the event.");
+                    }
+                } else {
+                    console.log("Error response:", res);
+                    alert("Error: " + (res.message || "Unknown error"));
                 }
             },
             error: function(xhr, status, error) {
