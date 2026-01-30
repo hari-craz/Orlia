@@ -105,9 +105,9 @@
         </div>
     </div>
 
-    <script src="assets/script/script.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/script/script.js"></script>
     <script>
     $(document).on('submit', '#registerForm', function(e) {
         e.preventDefault();
