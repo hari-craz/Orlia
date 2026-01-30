@@ -111,9 +111,16 @@
     <script>
     $(document).on('submit', '#registerForm', function(e) {
         e.preventDefault();
+        console.log("Register button clicked!");
+        
         var Formdata = new FormData(this);
         Formdata.append("Add_newuser", true);
-        console.log("Form submitted");
+        
+        // Disable button to prevent multiple submissions
+        var $btn = $(this).find('button[type="submit"]');
+        var originalText = $btn.text();
+        $btn.prop('disabled', true).text('Registering...');
+        
         $.ajax({
             url: "backend.php",
             method: "POST",
@@ -121,39 +128,43 @@
             processData: false,
             contentType: false,
             success: function(response) {
-                console.log("AJAX Success - Response:", response);
+                console.log("Response received:", response);
+                
                 try {
-                    var res = jQuery.parseJSON(response);
-                    console.log("Parsed Response:", res);
+                    var res = JSON.parse(response);
+                    console.log("Parsed JSON:", res);
                     
                     if (res.status == 200) {
-                        console.log("Registration successful!");
+                        console.log("Success! Showing alert...");
                         $('#registerForm')[0].reset();
                         
-                        // Show alert - simple and reliable
-                        alert("✓ Registration Successful!\nYou have registered for the event.");
+                        // Always show this basic alert first
+                        alert("✓ Registration Successful!\nYour registration has been saved.");
                         
-                        // Also try SweetAlert if available
+                        // Then try SweetAlert
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
                                 title: "Success!",
-                                text: "You have registered for the event",
+                                text: "You have registered for the event!",
                                 icon: "success",
                                 timer: 3000
                             });
                         }
-                    } else if (res.status == 500) {
-                        console.error("Registration error:", res.message);
-                        alert("❌ Error: " + res.message);
+                    } else {
+                        console.log("Error response:", res);
+                        alert("Error: " + (res.message || "Unknown error"));
                     }
-                } catch(e) {
-                    console.error("JSON Parse Error:", e);
-                    alert("Error parsing response: " + e.message);
+                } catch(parseError) {
+                    console.error("Parse error:", parseError);
+                    alert("Response parse error: " + parseError.message + "\nRaw: " + response);
                 }
             },
             error: function(xhr, status, error) {
-                console.error("AJAX Error:", {error, status, response: xhr.responseText});
-                alert("❌ AJAX Error: " + error);
+                console.error("AJAX Error:", status, error);
+                alert("Network error: " + error);
+            },
+            complete: function() {
+                $btn.prop('disabled', false).text(originalText);
             }
         });
     });
