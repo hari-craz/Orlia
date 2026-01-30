@@ -121,20 +121,31 @@
             processData: false,
             contentType: false,
             success: function(response) {
+                console.log("Response:", response);
                 var res = jQuery.parseJSON(response);
-                console.log(res);
+                console.log("Parsed Response:", res);
                 if (res.status == 200) {
                     $('#registerForm')[0].reset();
-                    Swal.fire({
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
                             title: "Good job!",
                             text: "You Register for the Events",
                             icon: "success"
-                    });
+                        });
+                    } else {
+                        alert("Registration Successful!");
+                    }
                 } else if (res.status == 500) {
                     $('#registerForm')[0].reset();
                     console.error("Error:", res.message);
-                    alert("Something Went wrong.! try again")
+                    alert("Error: " + res.message);
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX Error:", error);
+                console.error("Status:", status);
+                console.error("Response:", xhr.responseText);
+                alert("Error: " + error);
             }
         });
     });
