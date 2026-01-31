@@ -242,7 +242,7 @@ $result = mysqli_query($conn, $sql);
                     processData: false,
                     contentType: false,
                     success: function(response) {
-                        var res = jQuery.parseJSON(response);
+                        var res = (typeof response === 'string') ? jQuery.parseJSON(response) : response;
                         if (res.status == 200) {
                             $('#addmodal').modal('hide');
                             $('#Adduser')[0].reset();
@@ -274,7 +274,7 @@ $result = mysqli_query($conn, $sql);
                             'userid': id
                         },
                         success: function(response) {
-                            var res = jQuery.parseJSON(response);
+                            var res = (typeof response === 'string') ? jQuery.parseJSON(response) : response;
                             if (res.status == 500) {
                                 alert(res.message);
                             } else {
@@ -299,7 +299,7 @@ $result = mysqli_query($conn, $sql);
                     },
                     success: function(response) {
 
-                        var res = jQuery.parseJSON(response);
+                        var res = (typeof response === 'string') ? jQuery.parseJSON(response) : response;
                         console.log(res)
                         if (res.status == 500) {
                             alert(res.message);
@@ -332,7 +332,7 @@ $result = mysqli_query($conn, $sql);
                     processData: false,
                     contentType: false,
                     success: function(response) {
-                        var res = jQuery.parseJSON(response);
+                        var res = (typeof response === 'string') ? jQuery.parseJSON(response) : response;
                         console.log(res);
                         if (res.status == 200) {
                             $('#Editusers').modal('hide');

@@ -374,7 +374,8 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    var res = jQuery.parseJSON(response);
+                    // Handle both string and object responses
+                    var res = (typeof response === 'string') ? jQuery.parseJSON(response) : response;
                     console.log(res);
                     if (res.status == 200) {
                         $('#Groupform')[0].reset();

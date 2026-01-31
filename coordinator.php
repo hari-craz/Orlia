@@ -2,6 +2,29 @@
 session_start();
 include "db.php";
 
+// Handle login POST before any HTML output
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $password = mysqli_real_escape_string($conn, $_POST['password']);
+    $query = "SELECT * FROM login WHERE userid = '$username' AND password = '$password'";
+    $result = mysqli_query($conn, $query);
+    if (mysqli_num_rows($result) == 1) {
+        $row = mysqli_fetch_assoc($result);
+        $_SESSION['username'] = $username;
+        $_SESSION['role'] = $row['role'];
+        
+        if ($_SESSION['role'] == 1) {
+            header("Location: dashboard.php");
+        } else if ($_SESSION['role'] == 2) {
+            header("Location: superadmin.php");
+        } else {
+            header("Location: overdashboard.php");
+        }
+        exit();
+    } else {
+        $login_error = true;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,38 +70,9 @@ include "db.php";
             </div>
         </div>
     </div>
-    <?php
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $username = mysqli_real_escape_string($conn, $_POST['username']);
-        $password = mysqli_real_escape_string($conn, $_POST['password']);
-        $query = "SELECT * FROM login WHERE userid = '$username' AND password = '$password'";
-        $result = mysqli_query($conn, $query);
-        if (mysqli_num_rows($result) == 1) {
-            $row = mysqli_fetch_assoc($result);
-            $_SESSION['username'] = $username;
-            
-            $_SESSION['role'] = $row['role'];
-        
-        if ($_SESSION['role']  == 1) {
-            header("Location: dashboard.php");
-        }else if($_SESSION['role'] == 2) {
-            header("Location: superadmin.php");
-        }
-        else  {
-            header("Location: overdashboard.php");
-        }
-        exit();
-
-        } else {
-            echo "<script>alert('Invalid Username or Password. Please try again.'); window.location.href='coordinator.php';</script>";
-        }
-    } else {
-
-        exit();
-    }
-
-    ?>
-
+    <?php if (isset($login_error) && $login_error): ?>
+    <script>alert('Invalid Username or Password. Please try again.');</script>
+    <?php endif; ?>
 
 </body>
 
