@@ -6,14 +6,21 @@ ob_start();
 error_reporting(0);
 ini_set('display_errors', 0);
 
-// Session must be configured BEFORE starting
+// Configure session for HTTPS/Cloudflare BEFORE starting
+$isHttps = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || 
+           (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+           (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on');
+
 if (session_status() === PHP_SESSION_NONE) {
-    // Only set secure cookie if actually on HTTPS
-    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' || 
-        isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
-        ini_set('session.cookie_secure', '1');
-        ini_set('session.cookie_samesite', 'None');
-    }
+    // Session cookie settings for Cloudflare proxy
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '',
+        'secure' => $isHttps,
+        'httponly' => true,
+        'samesite' => $isHttps ? 'None' : 'Lax'
+    ]);
     session_start();
 }
 
@@ -21,10 +28,11 @@ if (session_status() === PHP_SESSION_NONE) {
 ob_clean();
 
 // Set headers for API responses
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, X-Requested-With');
+header('Access-Control-Allow-Credentials: true');
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -580,19 +588,17 @@ if (isset($_POST['login_user'])) {
     $query = "SELECT * FROM users WHERE userid='$username' AND password='$password'";
     $query_run = mysqli_query($conn, $query);
 
-    if (mysqli_num_rows($query_run) > 0) {
+    if ($query_run && mysqli_num_rows($query_run) > 0) {
         $row = mysqli_fetch_array($query_run);
 
-        // Start session if not already started
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
+        // Session already started at top of file
         $_SESSION['userid'] = $row['userid'];
         $_SESSION['role'] = $row['role'];
         $_SESSION['login_time'] = time();
 
-        $res = [
+        // Clear buffer and output clean JSON
+        ob_end_clean();
+        echo json_encode([
             'status' => 200,
             'message' => 'Login Successful',
             'redirect' => $row['role'] == '1' ? 'eventAdmin.php' : ($row['role'] == '2' ? 'superAdmin.php' : 'adminDashboard.php'),
@@ -600,16 +606,15 @@ if (isset($_POST['login_user'])) {
                 'userid' => $row['userid'],
                 'role' => $row['role']
             ]
-        ];
-        echo json_encode($res);
-        return;
+        ]);
+        exit;
     } else {
-        $res = [
+        ob_end_clean();
+        echo json_encode([
             'status' => 401,
             'message' => 'Invalid Username or Password'
-        ];
-        echo json_encode($res);
-        return;
+        ]);
+        exit;
     }
 }
 

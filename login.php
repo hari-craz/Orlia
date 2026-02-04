@@ -112,34 +112,27 @@ if (isset($_SESSION['userid'])) {
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function (response) {
-                    try {
-                        var res = JSON.parse(response);
-
-                        if (res.status == 200) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Login Successful',
-                                text: 'Redirecting...',
-                                timer: 1500,
-                                showConfirmButton: false
-                            }).then(() => {
-                                sessionStorage.setItem('userData', JSON.stringify(res.user));
-                                window.location.href = res.redirect || 'adminDashboard.php';
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Login Failed',
-                                text: res.message || 'Unknown error'
-                            });
-                        }
-                    } catch (e) {
-                        console.error('Parse error:', e, 'Response:', response);
+                dataType: 'json',
+                xhrFields: {
+                    withCredentials: true
+                },
+                success: function (res) {
+                    if (res.status == 200) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Login Successful',
+                            text: 'Redirecting...',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            sessionStorage.setItem('userData', JSON.stringify(res.user));
+                            window.location.href = res.redirect || 'adminDashboard.php';
+                        });
+                    } else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Server Error',
-                            text: 'Invalid response from server. Check console for details.'
+                            title: 'Login Failed',
+                            text: res.message || 'Unknown error'
                         });
                     }
                 },
