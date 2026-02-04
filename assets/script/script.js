@@ -332,15 +332,21 @@ function disableLink(event) {
   }
 }
 
-// Global Loader
-window.addEventListener("load", function () {
+// Global Loader - with fallback timeout
+function hideLoader() {
   const loader = document.getElementById("loader-wrapper");
-  if (loader) {
+  if (loader && loader.style.display !== "none") {
+    loader.classList.add("loaded");
     setTimeout(() => {
-      loader.classList.add("loaded");
-      setTimeout(() => {
-        loader.style.display = "none";
-      }, 500); // Wait for transition to finish (matches css transition)
-    }, 1000); // Increased loader timing to 3 seconds
+      loader.style.display = "none";
+    }, 500);
   }
+}
+
+// Hide on window load
+window.addEventListener("load", function () {
+  setTimeout(hideLoader, 1000);
 });
+
+// Fallback: Hide loader after 5 seconds regardless
+setTimeout(hideLoader, 5000);

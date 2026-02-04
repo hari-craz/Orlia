@@ -9,20 +9,8 @@ $username = getenv('DB_USER') ?: "root";
 $password = getenv('DB_PASSWORD') ?: "";
 $dbname = getenv('DB_NAME') ?: "orlia";
 
-// Retry connection for Docker container startup timing
-$maxRetries = 5;
-$retryDelay = 2; // seconds
-$conn = null;
-
-for ($i = 0; $i < $maxRetries; $i++) {
-    $conn = @mysqli_connect($servername, $username, $password, $dbname);
-    if ($conn) {
-        break;
-    }
-    if ($i < $maxRetries - 1) {
-        sleep($retryDelay);
-    }
-}
+// Single connection attempt (retries removed for faster page loads)
+$conn = @mysqli_connect($servername, $username, $password, $dbname);
 
 // Set charset for proper UTF-8 support if connected
 if ($conn) {
