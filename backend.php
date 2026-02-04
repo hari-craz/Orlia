@@ -1,6 +1,10 @@
 <?php
+// Start output buffering to catch any stray output
+ob_start();
+
 // Error handling - suppress warnings that could break JSON
-error_reporting(E_ERROR | E_PARSE);
+error_reporting(0);
+ini_set('display_errors', 0);
 
 // Session must be configured BEFORE starting
 if (session_status() === PHP_SESSION_NONE) {
@@ -12,6 +16,9 @@ if (session_status() === PHP_SESSION_NONE) {
     }
     session_start();
 }
+
+// Clear any buffered output before setting headers
+ob_clean();
 
 // Set headers for API responses
 header('Content-Type: application/json');
@@ -26,6 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 include "db.php";
+
+// Check if db.php failed
+if (!isset($conn) || !$conn) {
+    ob_end_clean();
+    echo json_encode(['status' => 500, 'message' => 'Database connection failed']);
+    exit;
+}
 
 if (isset($_POST['Add_newuser'])) {
     try {

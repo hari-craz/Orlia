@@ -1,7 +1,8 @@
 <?php
 // Database Configuration - Supports Docker Environment Variables
-// Suppress warnings that could break JSON output
-error_reporting(E_ERROR | E_PARSE);
+// Suppress ALL errors that could break JSON output
+error_reporting(0);
+ini_set('display_errors', 0);
 
 $servername = getenv('DB_HOST') ?: "localhost";
 $username = getenv('DB_USER') ?: "root";
@@ -23,31 +24,9 @@ for ($i = 0; $i < $maxRetries; $i++) {
     }
 }
 
-// Check connection
-if (!$conn) {
-    // Log error for debugging
-    error_log("Database connection failed after $maxRetries attempts: " . mysqli_connect_error());
-    
-    // Return JSON error for API calls
-    $isBackend = strpos($_SERVER['REQUEST_URI'] ?? '', 'backend.php') !== false;
-    if ($isBackend) {
-        if (!headers_sent()) {
-            header('Content-Type: application/json');
-        }
-        echo json_encode([
-            'status' => 500,
-            'message' => 'Database connection failed. Please try again later.',
-            'debug' => [
-                'host' => $servername,
-                'error' => mysqli_connect_error()
-            ]
-        ]);
-        exit;
-    }
-    
-    die("Connection failed: " . mysqli_connect_error());
+// Set charset for proper UTF-8 support if connected
+if ($conn) {
+    mysqli_set_charset($conn, "utf8mb4");
 }
-
-// Set charset for proper UTF-8 support
-mysqli_set_charset($conn, "utf8mb4");
+// Do NOT output anything here - let calling script handle errors
 ?>
