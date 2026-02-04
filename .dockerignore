@@ -1,0 +1,21 @@
+# Ignore local development files
+.env
+*.log
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# Ignore uploads (will be volume mounted)
+uploads/photos/*
+uploads/videos/*
+uploads/songs/*
+!uploads/photos/.gitkeep
+!uploads/videos/.gitkeep
+!uploads/songs/.gitkeep
+
+# Ignore node modules if any
+node_modules/

@@ -1,0 +1,24 @@
+# Ignore environment files with secrets
+.env
+
+# Ignore logs
+*.log
+
+# Ignore local IDE settings
+.vscode/
+.idea/
+*.sublime-*
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore uploaded content (will be stored on server)
+uploads/photos/*
+uploads/videos/*
+uploads/songs/*
+!uploads/**/.gitkeep
+
+# Ignore local backup files
+*.sql.bak
+*.backup

@@ -1,0 +1,71 @@
+# Orlia'26 Docker Compose for Portainer/TrueNAS
+# Ports: 8096 (Web App), 8095 (phpMyAdmin)
+
+version: '3.8'
+
+services:
+  # PHP Application
+  orlia-app:
+    build: .
+    container_name: orlia-web
+    restart: unless-stopped
+    ports:
+      - "8096:80"
+    environment:
+      - DB_HOST=orlia-db
+      - DB_USER=orlia_user
+      - DB_PASSWORD=orlia_secure_pass_2026
+      - DB_NAME=orlia
+    volumes:
+      - ./uploads:/var/www/html/uploads
+    depends_on:
+      orlia-db:
+        condition: service_healthy
+    networks:
+      - orlia-network
+
+  # MySQL Database
+  orlia-db:
+    image: mysql:8.0
+    container_name: orlia-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_secure_2026
+      MYSQL_DATABASE: orlia
+      MYSQL_USER: orlia_user
+      MYSQL_PASSWORD: orlia_secure_pass_2026
+    volumes:
+      - orlia-db-data:/var/lib/mysql
+      - ./assets/Schema/orlia.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_secure_2026"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - orlia-network
+
+  # phpMyAdmin (Optional - Remove if not needed)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: orlia-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8095:80"
+    environment:
+      PMA_HOST: orlia-db
+      PMA_USER: orlia_user
+      PMA_PASSWORD: orlia_secure_pass_2026
+      UPLOAD_LIMIT: 100M
+    depends_on:
+      - orlia-db
+    networks:
+      - orlia-network
+
+volumes:
+  orlia-db-data:
+    driver: local
+
+networks:
+  orlia-network:
+    driver: bridge
