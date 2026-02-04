@@ -7,11 +7,15 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Fix Apache ServerName warning
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 # Install additional utilities
 RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     unzip \
+    curl \
     && docker-php-ext-install zip \
     && rm -rf /var/lib/apt/lists/*
 

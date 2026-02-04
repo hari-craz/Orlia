@@ -1,4 +1,21 @@
 <?php
+// Set headers for API responses
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+// Session configuration for reverse proxy (Cloudflare/HTTPS)
+ini_set('session.cookie_secure', '1');
+ini_set('session.cookie_samesite', 'None');
+ini_set('session.use_strict_mode', '1');
+
 include "db.php";
 
 if (session_status() === PHP_SESSION_NONE) {
