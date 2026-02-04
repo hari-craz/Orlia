@@ -640,20 +640,17 @@ if (file_exists($watermarkPath)) {
                             url: 'backend.php',
                             type: 'POST',
                             data: { delete_participant: true, id: id, type: type },
-                            success: function (response) {
-                                try {
-                                    const res = JSON.parse(response);
-                                    if (res.status == 200) {
-                                        Swal.fire('Deleted!', res.message, 'success').then(() => location.reload());
-                                    } else {
-                                        Swal.fire('Error!', res.message, 'error');
-                                    }
-                                } catch (e) {
-                                    Swal.fire('Error', 'Invalid server response', 'error');
+                            dataType: 'json',
+                            xhrFields: { withCredentials: true },
+                            success: function (res) {
+                                if (res.status == 200) {
+                                    Swal.fire('Deleted!', res.message, 'success').then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error!', res.message, 'error');
                                 }
                             },
                             error: function () {
-                                Swal.fire('Error!', 'Something went wrong.', 'error');
+                                Swal.fire('Error!', 'Connection failed.', 'error');
                             }
                         });
                     }

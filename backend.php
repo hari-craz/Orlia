@@ -226,6 +226,7 @@ if (isset($_POST['Add_newuser'])) {
 
             // --- GLOBAL PASS CALCULATION END ---
 
+            ob_end_clean();
             $res = [
                 'status' => 200,
                 'message' => 'Event registered Successfully. Your Event Pass: ' . $eventPass,
@@ -244,15 +245,18 @@ if (isset($_POST['Add_newuser'])) {
                 ]
             ];
             echo json_encode($res);
+            exit;
         } else {
             throw new Exception('Query Failed: ' . mysqli_error($conn));
         }
     } catch (Exception $e) {
+        ob_end_clean();
         $res = [
             'status' => 500,
             'message' => 'Error: ' . $e->getMessage()
         ];
         echo json_encode($res);
+        exit;
     }
 }
 
@@ -1259,10 +1263,11 @@ if (isset($_POST['delete_participant'])) {
     $table = ($type == 'solo') ? 'soloevents' : 'groupevents';
 
     $query = "DELETE FROM $table WHERE id='$id'";
+    ob_end_clean();
     if (mysqli_query($conn, $query)) {
         echo json_encode(['status' => 200, 'message' => 'Participant deleted successfully']);
     } else {
-        echo json_encode(['status' => 500, 'message' => 'Deletion failed']);
+        echo json_encode(['status' => 500, 'message' => 'Deletion failed: ' . mysqli_error($conn)]);
     }
     exit;
 }
@@ -1274,6 +1279,7 @@ if (isset($_POST['get_participant_details'])) {
 
     $query = "SELECT * FROM $table WHERE id='$id'";
     $res = mysqli_query($conn, $query);
+    ob_end_clean();
     if ($res && mysqli_num_rows($res) > 0) {
         echo json_encode(['status' => 200, 'data' => mysqli_fetch_assoc($res)]);
     } else {
@@ -1303,10 +1309,11 @@ if (isset($_POST['update_participant'])) {
         $query = "UPDATE groupevents SET teamname='$teamname', teamleadname='$teamleadname', tregno='$tregno', phoneno='$phone' WHERE id='$id'";
     }
 
+    ob_end_clean();
     if (mysqli_query($conn, $query)) {
         echo json_encode(['status' => 200, 'message' => 'Participant updated successfully']);
     } else {
-        echo json_encode(['status' => 500, 'message' => 'Update failed']);
+        echo json_encode(['status' => 500, 'message' => 'Update failed: ' . mysqli_error($conn)]);
     }
     exit;
 }
