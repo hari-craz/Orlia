@@ -57,6 +57,12 @@ if (isset($_POST['Add_newuser'])) {
             exit;
         }
 
+        // Validate event is selected
+        if (empty($_POST['events'])) {
+            echo json_encode(['status' => 400, 'message' => 'Please select an event.']);
+            exit;
+        }
+
         $name = mysqli_real_escape_string($conn, $_POST['fullName']);
         $rollno = mysqli_real_escape_string($conn, $_POST['rollNumber']);
         $year = mysqli_real_escape_string($conn, $_POST['year']);
