@@ -667,11 +667,11 @@ if (file_exists($watermarkPath)) {
                     url: 'backend.php',
                     type: 'POST',
                     data: { get_participant_details: true, id: id, type: type },
-                    success: function (response) {
-                        try {
-                            const res = JSON.parse(response);
-                            if (res.status == 200) {
-                                const data = res.data;
+                    dataType: 'json',
+                    xhrFields: { withCredentials: true },
+                    success: function (res) {
+                        if (res.status == 200) {
+                            const data = res.data;
                                 let html = '<div style="display: flex; flex-direction: column; gap: 10px; text-align: left;">';
 
                                 const inputStyle = 'margin: 0; height: 36px; font-size: 0.95rem; padding: 0 10px; width: 100%; box-sizing: border-box; border: 1px solid #d9d9d9; border-radius: 4px;';
@@ -733,35 +733,34 @@ if (file_exists($watermarkPath)) {
                                                 update_participant: true,
                                                 ...formValues
                                             },
-                                            success: function (updateResponse) {
-                                                try {
-                                                    const updateRes = JSON.parse(updateResponse);
-                                                    if (updateRes.status == 200) {
-                                                        Swal.fire({
-                                                            title: 'Updated!',
-                                                            text: updateRes.message,
-                                                            icon: 'success',
-                                                            timer: 1500,
-                                                            showConfirmButton: false
-                                                        }).then(() => location.reload());
-                                                    } else {
-                                                        Swal.fire('Error!', updateRes.message, 'error');
-                                                    }
-                                                } catch (e) {
-                                                    Swal.fire('Error', 'Invalid response during update', 'error');
+                                            dataType: 'json',
+                                            xhrFields: { withCredentials: true },
+                                            success: function (updateRes) {
+                                                if (updateRes.status == 200) {
+                                                    Swal.fire({
+                                                        title: 'Updated!',
+                                                        text: updateRes.message,
+                                                        icon: 'success',
+                                                        timer: 1500,
+                                                        showConfirmButton: false
+                                                    }).then(() => location.reload());
+                                                } else {
+                                                    Swal.fire('Error!', updateRes.message, 'error');
                                                 }
+                                            },
+                                            error: function() {
+                                                Swal.fire('Error', 'Connection failed during update', 'error');
                                             }
                                         });
                                     }
                                 });
 
-                            } else {
-                                Swal.fire('Error', res.message, 'error');
-                            }
-                        } catch (e) {
-                            console.error(e);
-                            Swal.fire('Error', 'Invalid response', 'error');
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
                         }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Connection failed', 'error');
                     }
                 });
             };

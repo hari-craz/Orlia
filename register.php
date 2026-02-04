@@ -718,37 +718,32 @@ checkUserAccess(true);
                 data: {
                     get_events: true,
                     day: selectedDay,
-                    type: 'Solo' // Fetch Solo events for individual registration
+                    type: 'Solo'
                 },
-                success: function (response) {
-                    try {
-                        const events = JSON.parse(response);
-                        eventsDropdown.innerHTML = '<option value="" disabled selected>Select Event</option>';
+                dataType: 'json',
+                xhrFields: { withCredentials: true },
+                success: function (events) {
+                    eventsDropdown.innerHTML = '<option value="" disabled selected>Select Event</option>';
 
-                        if (events.length > 0) {
-                            events.forEach(event => {
-                                const option = document.createElement("option");
-                                option.value = event.value;
-                                option.textContent = event.text;
-                                if (preSelectedEvent && event.value.toLowerCase() === preSelectedEvent.toLowerCase()) {
-                                    option.selected = true;
-                                }
-                                eventsDropdown.appendChild(option);
-                            });
-
-                            eventsDropdown.disabled = false;
-
-                            if (preSelectedEvent) {
-                                // Trigger check flow and lock if pre-selected
-                                checkEventFlow(preSelectedEvent);
-                                eventsDropdown.disabled = true;
+                    if (events && events.length > 0) {
+                        events.forEach(event => {
+                            const option = document.createElement("option");
+                            option.value = event.value;
+                            option.textContent = event.text;
+                            if (preSelectedEvent && event.value.toLowerCase() === preSelectedEvent.toLowerCase()) {
+                                option.selected = true;
                             }
-                        } else {
-                            eventsDropdown.innerHTML = '<option value="" disabled selected>No events available</option>';
+                            eventsDropdown.appendChild(option);
+                        });
+
+                        eventsDropdown.disabled = false;
+
+                        if (preSelectedEvent) {
+                            checkEventFlow(preSelectedEvent);
+                            eventsDropdown.disabled = true;
                         }
-                    } catch (e) {
-                        console.error("Error parsing events", e);
-                        eventsDropdown.innerHTML = '<option value="" disabled selected>Error loading events</option>';
+                    } else {
+                        eventsDropdown.innerHTML = '<option value="" disabled selected>No events available</option>';
                     }
                 },
                 error: function () {

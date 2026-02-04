@@ -57,12 +57,6 @@ if (isset($_POST['Add_newuser'])) {
             exit;
         }
 
-        // Validate event is selected
-        if (empty($_POST['events'])) {
-            echo json_encode(['status' => 400, 'message' => 'Please select an event.']);
-            exit;
-        }
-
         $name = mysqli_real_escape_string($conn, $_POST['fullName']);
         $rollno = mysqli_real_escape_string($conn, $_POST['rollNumber']);
         $year = mysqli_real_escape_string($conn, $_POST['year']);
@@ -697,8 +691,6 @@ if (isset($_GET['get_events'])) {
     $day = mysqli_real_escape_string($conn, $_GET['day']);
     $type = mysqli_real_escape_string($conn, $_GET['type']);
 
-    // Ensure we select only active events or handle status logic if needed. 
-    // For now, listing all events matching day and type.
     // Select events matching the specific type OR valid for 'Both'
     $query = "SELECT event_name, event_key FROM events WHERE day='$day' AND (event_type='$type' OR event_type='Both')";
     $query_run = mysqli_query($conn, $query);
@@ -712,8 +704,10 @@ if (isset($_GET['get_events'])) {
             ];
         }
     }
+    ob_end_clean();
+    header('Content-Type: application/json; charset=utf-8');
     echo json_encode($events);
-    exit; // Important to stop further output
+    exit;
 }
 
 if (isset($_POST['reset_ids'])) {

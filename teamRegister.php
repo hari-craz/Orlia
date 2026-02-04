@@ -521,39 +521,32 @@ checkUserAccess(true);
                 data: {
                     get_events: true,
                     day: selectedDay,
-                    type: 'Group' // Fetch Group events
+                    type: 'Group'
                 },
-                success: function (response) {
-                    try {
-                        const events = JSON.parse(response);
-                        eventsDropdown.innerHTML = '<option value="" disabled selected>Select Event</option>';
+                dataType: 'json',
+                xhrFields: { withCredentials: true },
+                success: function (events) {
+                    eventsDropdown.innerHTML = '<option value="" disabled selected>Select Event</option>';
 
-                        if (events.length > 0) {
-                            events.forEach(event => {
-                                const option = document.createElement("option");
-                                option.value = event.value;
-                                option.textContent = event.text;
-                                if (preSelectedEvent && event.value.toLowerCase() === preSelectedEvent.toLowerCase()) {
-                                    option.selected = true;
-                                }
-                                eventsDropdown.appendChild(option);
-                            });
-                            eventsDropdown.disabled = false;
-
-                            // If an event is pre-selected or selected, trigger change to update team member fields
-                            if (preSelectedEvent) {
-                                // We need to wait a tick for the DOM to update or manually trigger logic
-                                // Since we are setting selected=true above, let's manually call the change logic
-                                const event = new Event('change');
-                                eventsDropdown.dispatchEvent(event);
-                                eventsDropdown.disabled = true;
+                    if (events && events.length > 0) {
+                        events.forEach(event => {
+                            const option = document.createElement("option");
+                            option.value = event.value;
+                            option.textContent = event.text;
+                            if (preSelectedEvent && event.value.toLowerCase() === preSelectedEvent.toLowerCase()) {
+                                option.selected = true;
                             }
-                        } else {
-                            eventsDropdown.innerHTML = '<option value="" disabled selected>No events available</option>';
+                            eventsDropdown.appendChild(option);
+                        });
+                        eventsDropdown.disabled = false;
+
+                        if (preSelectedEvent) {
+                            const event = new Event('change');
+                            eventsDropdown.dispatchEvent(event);
+                            eventsDropdown.disabled = true;
                         }
-                    } catch (e) {
-                        console.error("Error parsing events", e);
-                        eventsDropdown.innerHTML = '<option value="" disabled selected>Error loading events</option>';
+                    } else {
+                        eventsDropdown.innerHTML = '<option value="" disabled selected>No events available</option>';
                     }
                 },
                 error: function () {
@@ -819,16 +812,13 @@ checkUserAccess(true);
                     url: 'backend.php',
                     method: 'POST',
                     data: { check_team_name: true, teamName: teamName },
-                    success: function (response) {
-                        try {
-                            const res = JSON.parse(response);
-                            if (res.status == 200) {
-                                setTeamNameFeedback('available');
-                            } else {
-                                setTeamNameFeedback('taken');
-                            }
-                        } catch (e) {
-                            console.error('Error parsing response');
+                    dataType: 'json',
+                    xhrFields: { withCredentials: true },
+                    success: function (res) {
+                        if (res.status == 200) {
+                            setTeamNameFeedback('available');
+                        } else {
+                            setTeamNameFeedback('taken');
                         }
                     }
                 });
