@@ -1,9 +1,23 @@
 <?php
+// Error handling - suppress warnings that could break JSON
+error_reporting(E_ERROR | E_PARSE);
+
+// Session must be configured BEFORE starting
+if (session_status() === PHP_SESSION_NONE) {
+    // Only set secure cookie if actually on HTTPS
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' || 
+        isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+        ini_set('session.cookie_secure', '1');
+        ini_set('session.cookie_samesite', 'None');
+    }
+    session_start();
+}
+
 // Set headers for API responses
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, X-Requested-With');
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -11,16 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// Session configuration for reverse proxy (Cloudflare/HTTPS)
-ini_set('session.cookie_secure', '1');
-ini_set('session.cookie_samesite', 'None');
-ini_set('session.use_strict_mode', '1');
-
 include "db.php";
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 if (isset($_POST['Add_newuser'])) {
     try {
