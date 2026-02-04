@@ -165,7 +165,8 @@ CREATE TABLE `soloevents` (
   `day` varchar(255) NOT NULL,
   `events` varchar(255) NOT NULL,
   `mail` varchar(255) NOT NULL,
-  `video` varchar(255) DEFAULT NULL
+  `video` varchar(255) DEFAULT NULL,
+  `photo` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -329,6 +330,25 @@ ALTER TABLE `soloevents`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `feedback`
+--
+
+CREATE TABLE `feedback` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `event_pass` varchar(50) NOT NULL,
+  `event_key` varchar(255) NOT NULL,
+  `event_name` varchar(255) NOT NULL,
+  `feedback_text` text DEFAULT NULL,
+  `rating` int(11) DEFAULT 5,
+  `suggestions` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
