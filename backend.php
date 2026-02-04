@@ -492,20 +492,24 @@ if (isset($_POST['Addadmins'])) {
         // ✅ Step 6: Insert Data into Database
         $query = "INSERT INTO users(userid, password, role ) VALUES ('$userid','$password','$role')";
         if (mysqli_query($conn, $query)) {
+            ob_end_clean();
             $res = [
                 'status' => 200,
                 'message' => 'User Added Successfully'
             ];
             echo json_encode($res);
+            exit;
         } else {
             throw new Exception('Query Failed: ' . mysqli_error($conn));
         }
     } catch (Exception $e) {
+        ob_end_clean();
         $res = [
             'status' => 500,
             'message' => 'Error: ' . $e->getMessage()
         ];
         echo json_encode($res);
+        exit;
     }
 }
 
@@ -514,20 +518,21 @@ if (isset($_POST['delete_user'])) {
     $query = "DELETE FROM users WHERE id='$id'";
     $query_run = mysqli_query($conn, $query);
 
+    ob_end_clean();
     if ($query_run) {
         $res = [
             'status' => 200,
             'message' => 'Details Deleted Successfully'
         ];
         echo json_encode($res);
-        return;
+        exit;
     } else {
         $res = [
             'status' => 500,
             'message' => 'Details Not Deleted'
         ];
         echo json_encode($res);
-        return;
+        exit;
     }
 }
 
@@ -539,7 +544,7 @@ if (isset($_POST['edit_user'])) {
 
     $User_data = mysqli_fetch_array($query_run);
 
-
+    ob_end_clean();
     if ($query_run) {
         $res = [
             'status' => 200,
@@ -547,14 +552,14 @@ if (isset($_POST['edit_user'])) {
             'data' => $User_data
         ];
         echo json_encode($res);
-        return;
+        exit;
     } else {
         $res = [
             'status' => 500,
             'message' => 'Details Not Deleted'
         ];
         echo json_encode($res);
-        return;
+        exit;
     }
 }
 
@@ -568,20 +573,21 @@ if (isset($_POST['save_edituser'])) {
     $query = "UPDATE users SET userid='$userid', password='$password' , role='$role' WHERE id='$student_id'";
     $query_run = mysqli_query($conn, $query);
 
+    ob_end_clean();
     if ($query_run) {
         $res = [
             'status' => 200,
             'message' => 'details Updated Successfully'
         ];
         echo json_encode($res);
-        return;
+        exit;
     } else {
         $res = [
             'status' => 500,
             'message' => 'Details Not Deleted'
         ];
         echo json_encode($res);
-        return;
+        exit;
     }
 }
 
@@ -627,11 +633,13 @@ if (isset($_POST['update_event_status'])) {
     $status = mysqli_real_escape_string($conn, $_POST['status']);
 
     $query = "UPDATE events SET status='$status' WHERE id='$id'";
+    ob_end_clean();
     if (mysqli_query($conn, $query)) {
         echo json_encode(['status' => 200, 'message' => 'Status updated']);
     } else {
         echo json_encode(['status' => 500, 'message' => 'Error updating status']);
     }
+    exit;
 }
 
 if (isset($_POST['bulk_update_status'])) {
@@ -647,6 +655,7 @@ if (isset($_POST['bulk_update_status'])) {
         $query = "UPDATE events SET status='$status' WHERE event_type='Group'";
     }
 
+    ob_end_clean();
     if (!empty($query)) {
         if (mysqli_query($conn, $query)) {
             echo json_encode(['status' => 200, 'message' => 'Bulk status updated successfully']);
@@ -656,6 +665,7 @@ if (isset($_POST['bulk_update_status'])) {
     } else {
         echo json_encode(['status' => 400, 'message' => 'Invalid scope']);
     }
+    exit;
 }
 
 if (isset($_POST['check_team_name'])) {
@@ -685,11 +695,13 @@ if (isset($_POST['update_event_details'])) {
     $topics = isset($_POST['topics']) ? mysqli_real_escape_string($conn, $_POST['topics']) : '';
 
     $query = "UPDATE events SET event_name='$name', event_category='$category', event_type='$type', day='$day', event_venue='$venue', event_time='$time', event_description='$description', event_rules='$rules', event_topics='$topics' WHERE id='$id'";
+    ob_end_clean();
     if (mysqli_query($conn, $query)) {
         echo json_encode(['status' => 200, 'message' => 'Event details updated successfully']);
     } else {
         echo json_encode(['status' => 500, 'message' => 'Error updating event details: ' . mysqli_error($conn)]);
     }
+    exit;
 }
 if (isset($_GET['get_events'])) {
     $day = mysqli_real_escape_string($conn, $_GET['day']);
@@ -728,6 +740,7 @@ if (isset($_POST['reset_ids'])) {
         $table = 'events';
     }
 
+    ob_end_clean();
     if (!empty($table)) {
         // Reset IDs logic
         $q1 = "SET @num := 0;";
@@ -746,9 +759,11 @@ if (isset($_POST['reset_ids'])) {
     } else {
         echo json_encode(['status' => 400, 'message' => 'Invalid type for ID reset.']);
     }
+    exit;
 }
 
 if (isset($_POST['submit_vote'])) {
+    ob_end_clean();
     try {
         $regno = isset($_POST['regno']) ? trim(mysqli_real_escape_string($conn, $_POST['regno'])) : '';
         $name = isset($_POST['name']) ? trim(mysqli_real_escape_string($conn, $_POST['name'])) : '';
@@ -897,6 +912,7 @@ if (isset($_POST['get_global_pass'])) {
 }
 
 if (isset($_POST['delete_vote'])) {
+    ob_end_clean();
     header('Content-Type: application/json');
     if (!isset($_POST['id'])) {
         echo json_encode(['status' => 400, 'message' => 'No ID provided']);
@@ -913,6 +929,7 @@ if (isset($_POST['delete_vote'])) {
 }
 
 if (isset($_POST['bulk_delete_votes'])) {
+    ob_end_clean();
     header('Content-Type: application/json');
     if (!isset($_POST['ids'])) {
         echo json_encode(['status' => 400, 'message' => 'No IDs provided']);
@@ -945,6 +962,7 @@ if (isset($_POST['submit_feedback'])) {
     $feedback = mysqli_real_escape_string($conn, $_POST['feedback_text']);
     $eventKey = $_SESSION['userid'] ?? ''; // The logged-in event admin
 
+    ob_end_clean();
     if (empty($eventKey)) {
         echo json_encode(['status' => 401, 'message' => 'Unauthorized']);
         exit;

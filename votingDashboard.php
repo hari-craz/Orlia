@@ -368,6 +368,7 @@ if ($role == '2') {
                                 vote: result.value.vote
                             },
                             dataType: 'json',
+                            xhrFields: { withCredentials: true },
                             success: function (response) {
                                 if (response.status == 200) {
                                     Swal.fire('Success!', response.message, 'success')

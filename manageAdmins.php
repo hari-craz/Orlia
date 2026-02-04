@@ -379,17 +379,17 @@ $agastyaWatermark = getImgBase64('assets/images/agastya.jpg');
                                 password: result.value.password,
                                 role: result.value.role
                             },
-                            success: function (response) {
-                                try {
-                                    var res = JSON.parse(response);
-                                    if (res.status == 200) {
-                                        Swal.fire('Success', res.message, 'success').then(() => location.reload());
-                                    } else {
-                                        Swal.fire('Error', res.message, 'error');
-                                    }
-                                } catch (e) {
-                                    Swal.fire('Error', 'Invalid response from server', 'error');
+                            dataType: 'json',
+                            xhrFields: { withCredentials: true },
+                            success: function (res) {
+                                if (res.status == 200) {
+                                    Swal.fire('Success', res.message, 'success').then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', res.message, 'error');
                                 }
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'Connection failed', 'error');
                             }
                         });
                     }
@@ -412,16 +412,13 @@ $agastyaWatermark = getImgBase64('assets/images/agastya.jpg');
                             type: 'POST',
                             url: 'backend.php',
                             data: { reset_ids: true, type: 'admins' },
-                            success: function (response) {
-                                try {
-                                    const res = JSON.parse(response);
-                                    if (res.status == 200) {
-                                        Swal.fire('Reset!', res.message, 'success').then(() => location.reload());
-                                    } else {
-                                        Swal.fire('Error', res.message, 'error');
-                                    }
-                                } catch (e) {
-                                    Swal.fire('Error', 'Invalid server response', 'error');
+                            dataType: 'json',
+                            xhrFields: { withCredentials: true },
+                            success: function (res) {
+                                if (res.status == 200) {
+                                    Swal.fire('Reset!', res.message, 'success').then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', res.message, 'error');
                                 }
                             },
                             error: function () {
@@ -449,17 +446,17 @@ $agastyaWatermark = getImgBase64('assets/images/agastya.jpg');
                             type: 'POST',
                             url: 'backend.php',
                             data: { delete_user: true, userid: id },
-                            success: function (response) {
-                                try {
-                                    var res = JSON.parse(response);
-                                    if (res.status == 200) {
-                                        Swal.fire('Deleted!', res.message, 'success').then(() => location.reload());
-                                    } else {
-                                        Swal.fire('Error', res.message, 'error');
-                                    }
-                                } catch (e) {
-                                    Swal.fire('Error', 'Invalid server response', 'error');
+                            dataType: 'json',
+                            xhrFields: { withCredentials: true },
+                            success: function (res) {
+                                if (res.status == 200) {
+                                    Swal.fire('Deleted!', res.message, 'success').then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', res.message, 'error');
                                 }
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'Connection failed', 'error');
                             }
                         });
                     }
@@ -474,72 +471,75 @@ $agastyaWatermark = getImgBase64('assets/images/agastya.jpg');
                     type: 'POST',
                     url: 'backend.php',
                     data: { edit_user: true, user_id: id },
-                    success: function (response) {
-                        try {
-                            const res = JSON.parse(response);
-                            if (res.status == 200) {
-                                const data = res.data;
-                                Swal.fire({
-                                    title: 'Edit Admin',
-                                    html: `
-                                        <div style="text-align: left; margin-bottom: 5px; width: 80%; margin: 0 auto;">
-                                            <input type="hidden" id="edit-id" value="${data.id}">
-                                            
-                                            <label class="swal-custom-label">Username</label>
-                                            <input id="edit-userid" class="swal-custom-input" value="${data.userid}" placeholder="Username">
-                                            
-                                            <label class="swal-custom-label">Password</label>
-                                            <input id="edit-password" type="text" class="swal-custom-input" value="${data.password}" placeholder="Password">
-                                            
-                                            <label class="swal-custom-label">Role</label>
-                                            <select id="edit-role" class="swal-custom-select">
-                                                <option value="0" ${data.role == 0 ? 'selected' : ''}>Co-Admin</option>
-                                                <option value="1" ${data.role == 1 ? 'selected' : ''}>Event Admin</option>
-                                                <option value="2" ${data.role == 2 ? 'selected' : ''}>Super Admin</option>
-                                            </select>
-                                        </div>
-                                    `,
-                                    confirmButtonText: 'Update Details',
-                                    confirmButtonColor: '#134e4a',
-                                    showCancelButton: true,
-                                    preConfirm: () => {
-                                        return {
-                                            id: document.getElementById('edit-id').value,
-                                            userid: document.getElementById('edit-userid').value,
-                                            password: document.getElementById('edit-password').value,
-                                            role: document.getElementById('edit-role').value
-                                        };
-                                    }
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        $.ajax({
-                                            type: 'POST',
-                                            url: 'backend.php',
-                                            data: {
-                                                save_edituser: true,
-                                                id: result.value.id,
-                                                userid: result.value.userid,
-                                                password: result.value.password,
-                                                role: result.value.role
-                                            },
-                                            success: function (saveResp) {
-                                                const saveRes = JSON.parse(saveResp);
-                                                if (saveRes.status == 200) {
-                                                    Swal.fire('Updated!', saveRes.message, 'success').then(() => location.reload());
-                                                } else {
-                                                    Swal.fire('Error', saveRes.message, 'error');
-                                                }
+                    dataType: 'json',
+                    xhrFields: { withCredentials: true },
+                    success: function (res) {
+                        if (res.status == 200) {
+                            const data = res.data;
+                            Swal.fire({
+                                title: 'Edit Admin',
+                                html: `
+                                    <div style="text-align: left; margin-bottom: 5px; width: 80%; margin: 0 auto;">
+                                        <input type="hidden" id="edit-id" value="${data.id}">
+                                        
+                                        <label class="swal-custom-label">Username</label>
+                                        <input id="edit-userid" class="swal-custom-input" value="${data.userid}" placeholder="Username">
+                                        
+                                        <label class="swal-custom-label">Password</label>
+                                        <input id="edit-password" type="text" class="swal-custom-input" value="${data.password}" placeholder="Password">
+                                        
+                                        <label class="swal-custom-label">Role</label>
+                                        <select id="edit-role" class="swal-custom-select">
+                                            <option value="0" ${data.role == 0 ? 'selected' : ''}>Co-Admin</option>
+                                            <option value="1" ${data.role == 1 ? 'selected' : ''}>Event Admin</option>
+                                            <option value="2" ${data.role == 2 ? 'selected' : ''}>Super Admin</option>
+                                        </select>
+                                    </div>
+                                `,
+                                confirmButtonText: 'Update Details',
+                                confirmButtonColor: '#134e4a',
+                                showCancelButton: true,
+                                preConfirm: () => {
+                                    return {
+                                        id: document.getElementById('edit-id').value,
+                                        userid: document.getElementById('edit-userid').value,
+                                        password: document.getElementById('edit-password').value,
+                                        role: document.getElementById('edit-role').value
+                                    };
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: 'backend.php',
+                                        data: {
+                                            save_edituser: true,
+                                            id: result.value.id,
+                                            userid: result.value.userid,
+                                            password: result.value.password,
+                                            role: result.value.role
+                                        },
+                                        dataType: 'json',
+                                        xhrFields: { withCredentials: true },
+                                        success: function (saveRes) {
+                                            if (saveRes.status == 200) {
+                                                Swal.fire('Updated!', saveRes.message, 'success').then(() => location.reload());
+                                            } else {
+                                                Swal.fire('Error', saveRes.message, 'error');
                                             }
-                                        });
-                                    }
-                                });
-                            } else {
-                                Swal.fire('Error', 'Could not fetch user details', 'error');
-                            }
-                        } catch (e) {
-                            console.error(e);
-                            Swal.fire('Error', 'Invalid server response', 'error');
+                                        },
+                                        error: function () {
+                                            Swal.fire('Error', 'Connection failed', 'error');
+                                        }
+                                    });
+                                }
+                            });
+                        } else {
+                            Swal.fire('Error', 'Could not fetch user details', 'error');
                         }
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Connection failed', 'error');
                     }
                 });
             });

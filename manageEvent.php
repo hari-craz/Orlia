@@ -400,16 +400,13 @@ if (file_exists($watermarkPath)) {
                             type: 'POST',
                             url: 'backend.php',
                             data: { reset_ids: true, type: 'events' },
-                            success: function (response) {
-                                try {
-                                    const res = JSON.parse(response);
-                                    if (res.status == 200) {
-                                        Swal.fire('Reset!', res.message, 'success').then(() => location.reload());
-                                    } else {
-                                        Swal.fire('Error', res.message, 'error');
-                                    }
-                                } catch (e) {
-                                    Swal.fire('Error', 'Invalid server response', 'error');
+                            dataType: 'json',
+                            xhrFields: { withCredentials: true },
+                            success: function (res) {
+                                if (res.status == 200) {
+                                    Swal.fire('Reset!', res.message, 'success').then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', res.message, 'error');
                                 }
                             },
                             error: function () {
@@ -564,6 +561,7 @@ if (file_exists($watermarkPath)) {
                                 topics: result.value.topics
                             },
                             dataType: 'json',
+                            xhrFields: { withCredentials: true },
                             success: function (response) {
                                 if (response.status == 200) {
                                     Swal.fire('Updated!', response.message, 'success').then(() => {
@@ -599,37 +597,26 @@ if (file_exists($watermarkPath)) {
                         id: eventId,
                         status: newStatus
                     },
-                    success: function (response) {
-                        try {
-                            var res;
-                            if (typeof response === 'string') {
-                                try {
-                                    res = JSON.parse(response);
-                                } catch (e) { console.log(response); }
-                            } else {
-                                res = response;
-                            }
+                    dataType: 'json',
+                    xhrFields: { withCredentials: true },
+                    success: function (res) {
+                        if (res && res.status == 200) {
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true
+                            });
 
-                            if (res && res.status == 200) {
-                                const Toast = Swal.mixin({
-                                    toast: true,
-                                    position: 'top-end',
-                                    showConfirmButton: false,
-                                    timer: 3000,
-                                    timerProgressBar: true
-                                });
-
-                                Toast.fire({
-                                    icon: 'success',
-                                    title: `${eventName}: ${statusText}`
-                                });
-                            } else {
-                                Swal.fire('Error', res ? res.message : 'Unknown error', 'error');
-                                // Revert switch
-                                $(this).prop('checked', !isChecked);
-                            }
-                        } catch (e) {
-                            console.error(e);
+                            Toast.fire({
+                                icon: 'success',
+                                title: `${eventName}: ${statusText}`
+                            });
+                        } else {
+                            Swal.fire('Error', res ? res.message : 'Unknown error', 'error');
+                            // Revert switch
+                            $(this).prop('checked', !isChecked);
                         }
                     },
                     error: function () {
@@ -675,6 +662,7 @@ if (file_exists($watermarkPath)) {
                             status: status
                         },
                         dataType: 'json',
+                        xhrFields: { withCredentials: true },
                         success: function (response) {
                             if (response.status == 200) {
                                 Swal.fire('Success', response.message, 'success').then(() => {
@@ -713,16 +701,13 @@ if (file_exists($watermarkPath)) {
                         type: 'POST',
                         url: 'backend.php',
                         data: { reset_ids: true, type: 'events' },
-                        success: function (response) {
-                            try {
-                                const res = JSON.parse(response);
-                                if (res.status == 200) {
-                                    Swal.fire('Reset!', res.message, 'success').then(() => location.reload());
-                                } else {
-                                    Swal.fire('Error', res.message, 'error');
-                                }
-                            } catch (e) {
-                                Swal.fire('Error', 'Invalid server response', 'error');
+                        dataType: 'json',
+                        xhrFields: { withCredentials: true },
+                        success: function (res) {
+                            if (res.status == 200) {
+                                Swal.fire('Reset!', res.message, 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Error', res.message, 'error');
                             }
                         },
                         error: function () {

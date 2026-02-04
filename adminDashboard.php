@@ -194,16 +194,13 @@ include 'db.php';
                             type: 'POST',
                             url: 'backend.php',
                             data: { reset_ids: true, type: type },
-                            success: function (response) {
-                                try {
-                                    const res = JSON.parse(response);
-                                    if (res.status == 200) {
-                                        Swal.fire('Reset!', res.message, 'success').then(() => location.reload());
-                                    } else {
-                                        Swal.fire('Error', res.message, 'error');
-                                    }
-                                } catch (e) {
-                                    Swal.fire('Error', 'Invalid server response', 'error');
+                            dataType: 'json',
+                            xhrFields: { withCredentials: true },
+                            success: function (res) {
+                                if (res.status == 200) {
+                                    Swal.fire('Reset!', res.message, 'success').then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', res.message, 'error');
                                 }
                             },
                             error: function () {

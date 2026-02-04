@@ -390,6 +390,7 @@ if (file_exists($watermarkPath)) {
                         type: 'POST',
                         data: { delete_vote: true, id: id },
                         dataType: 'json',
+                        xhrFields: { withCredentials: true },
                         success: function (res) {
                             if (res.status == 200) {
                                 Swal.fire('Deleted!', res.message, 'success').then(() => location.reload());
@@ -431,6 +432,7 @@ if (file_exists($watermarkPath)) {
                         type: 'POST',
                         data: { bulk_delete_votes: true, ids: selected },
                         dataType: 'json',
+                        xhrFields: { withCredentials: true },
                         success: function (res) {
                             if (res.status == 200) {
                                 Swal.fire('Deleted!', res.message, 'success').then(() => location.reload());
