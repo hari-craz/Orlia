@@ -565,32 +565,37 @@ checkUserAccess(true);
                 data: Formdata,
                 processData: false,
                 contentType: false,
-                success: function (response) {
-                    try {
-                        var res = JSON.parse(response);
-                        if (res.status == 200) {
-                            $('#registerForm')[0].reset();
-                            prevStep();
-                            checkEventFlow('');
+                dataType: 'json',
+                xhrFields: {
+                    withCredentials: true
+                },
+                success: function (res) {
+                    if (res.status == 200) {
+                        $('#registerForm')[0].reset();
+                        prevStep();
+                        checkEventFlow('');
 
-                            // Auto Download Global Pass
-                            if (res.pass_details) {
-                                autoDownloadPass(res.event_pass, res.pass_details);
-                            }
-
-                            Swal.fire({
-                                title: "Good job!",
-                                text: res.message,
-                                icon: "success",
-                                confirmButtonColor: '#7066e0',
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                window.location.href = "index.php#events";
-                            });
-                        } else {
-                            Swal.fire({ title: "Error!", text: res.message, icon: "error" });
+                        // Auto Download Global Pass
+                        if (res.pass_details) {
+                            autoDownloadPass(res.event_pass, res.pass_details);
                         }
-                    } catch (e) { console.error(e); }
+
+                        Swal.fire({
+                            title: "Good job!",
+                            text: res.message,
+                            icon: "success",
+                            confirmButtonColor: '#7066e0',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = "index.php#events";
+                        });
+                    } else {
+                        Swal.fire({ title: "Error!", text: res.message, icon: "error" });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX Error:', status, error, 'Response:', xhr.responseText);
+                    Swal.fire({ title: "Error!", text: "Connection failed: " + (error || status), icon: "error" });
                 }
             });
         });

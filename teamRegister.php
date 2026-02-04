@@ -1080,8 +1080,11 @@ checkUserAccess(true);
                 data: Formdata,
                 processData: false,
                 contentType: false,
-                success: function (response) {
-                    var res = JSON.parse(response);
+                dataType: 'json',
+                xhrFields: {
+                    withCredentials: true
+                },
+                success: function (res) {
                     if (res.status == 200) {
                         $('#Groupform')[0].reset();
                         // Reset wizard to step 1
@@ -1121,6 +1124,10 @@ checkUserAccess(true);
                             confirmButtonColor: '#d33'
                         });
                     }
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX Error:', status, error, 'Response:', xhr.responseText);
+                    Swal.fire({ title: "Error!", text: "Connection failed: " + (error || status), icon: "error" });
                 }
             });
         });
