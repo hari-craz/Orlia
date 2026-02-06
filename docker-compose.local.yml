@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: orlia-web-local
     ports:
-      - "8095:80"
+      - "10010:80"
     depends_on:
       db:
         condition: service_healthy
@@ -31,7 +31,7 @@ services:
       - orlia-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -40,7 +40,7 @@ services:
     image: phpmyadmin:latest
     container_name: orlia-phpmyadmin-local
     ports:
-      - "8096:80"
+      - "10011:80"
     environment:
       PMA_HOST: db
       PMA_USER: root

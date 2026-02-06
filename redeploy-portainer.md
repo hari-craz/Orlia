@@ -3,7 +3,7 @@
 ## Quick Deploy (Using Portainer Web UI)
 
 ### Step 1: Remove Old Stack (If Exists)
-1. Open Portainer: `http://your-truenas-ip:9000`
+1. Open Portainer: `http://your-truenas-ip:10010`
 2. Go to **Stacks** from left menu
 3. If "orlia" stack exists:
    - Click on it
@@ -32,10 +32,10 @@
    - `orlia-phpmyadmin` - Running
 
 3. **Test the deployment**:
-   - Database test: `http://your-truenas-ip:8095/test_db.php`
+   - Database test: `http://your-truenas-ip:10010/test_db.php`
    - Should show: `"status": "success"` with 3 tables
-   - Main site: `http://your-truenas-ip:8095/`
-   - phpMyAdmin: `http://your-truenas-ip:8096/`
+   - Main site: `http://your-truenas-ip:10010/`
+   - phpMyAdmin: `http://your-truenas-ip:10011/`
 
 ---
 
@@ -72,7 +72,7 @@ echo "Waiting 30 seconds for database..."
 sleep 30
 
 # Test the connection
-curl http://localhost:8095/test_db.php
+curl http://localhost:10010/test_db.php
 ```
 
 ---
@@ -93,7 +93,7 @@ SOURCE /docker-entrypoint-initdb.d/init.sql;
 exit;
 
 # Method 3: Via phpMyAdmin
-# Visit http://your-ip:8096
+# Visit http://your-ip:10011
 # Login: root / rootpassword
 # Select 'orlia' database
 # Click SQL tab
@@ -126,16 +126,16 @@ Should show:
 
 ### Port conflicts
 
-If ports 8095 or 8096 are already in use, modify `docker-compose.yml`:
+If ports 10010 or 10011 are already in use, modify `docker-compose.yml`:
 
 ```yaml
 services:
   web:
     ports:
-      - "8095:80"  # Change 8095 to another port like 8097
+      - "10010:80"  # Change 10010 to another port like 10012
   phpmyadmin:
     ports:
-      - "8096:80"  # Change 8096 to another port like 8098
+      - "10011:80"  # Change 10011 to another port like 10013
 ```
 
 ---
@@ -144,11 +144,11 @@ services:
 
 Once deployed:
 
-- **Main Website**: `http://your-truenas-ip:8095/`
-- **Event Registration**: `http://your-truenas-ip:8095/register.php`
-- **Group Registration**: `http://your-truenas-ip:8095/groupregister.php`
-- **Admin Dashboard**: `http://your-truenas-ip:8095/dashboard.php`
-- **phpMyAdmin**: `http://your-truenas-ip:8096/`
+- **Main Website**: `http://your-truenas-ip:10010/`
+- **Event Registration**: `http://your-truenas-ip:10010/register.php`
+- **Group Registration**: `http://your-truenas-ip:10010/groupregister.php`
+- **Admin Dashboard**: `http://your-truenas-ip:10010/dashboard.php`
+- **phpMyAdmin**: `http://your-truenas-ip:10011/`
 
 ---
 
