@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: orlia-web
+    container_name: orlia-web-25
     # Port mapping: Host Port : Container Port
     # Ensure 10010 is open on your TrueNAS/Portainer host
     ports:
@@ -24,7 +24,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.db
-    container_name: orlia-db
+    container_name: orlia-db-25
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: orlia
@@ -42,7 +42,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin:latest
-    container_name: orlia-phpmyadmin
+    container_name: orlia-phpmyadmin-25
     # Port mapping: Host Port : Container Port
     # Ensure 10011 is open on your TrueNAS/Portainer host
     ports:

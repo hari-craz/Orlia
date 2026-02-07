@@ -27,9 +27,9 @@
 
 1. Wait 30-45 seconds for containers to start and database to initialize
 2. Check containers are running:
-   - `orlia-web` - Running
-   - `orlia-db` - Healthy
-   - `orlia-phpmyadmin` - Running
+   - `orlia-web-25` - Running
+   - `orlia-db-25` - Healthy
+   - `orlia-phpmyadmin-25` - Running
 
 3. **Test the deployment**:
    - Database test: `http://your-truenas-ip:10010/test_db.php`
@@ -85,10 +85,10 @@ The database initialization only runs when the volume is empty. If you're redepl
 
 ```bash
 # Method 1: Import SQL directly
-docker exec -it orlia-db mariadb -uroot -prootpassword orlia < /docker-entrypoint-initdb.d/init.sql
+docker exec -it orlia-db-25 mariadb -uroot -prootpassword orlia < /docker-entrypoint-initdb.d/init.sql
 
 # Method 2: Run from inside container
-docker exec -it orlia-db mariadb -uroot -prootpassword orlia
+docker exec -it orlia-db-25 mariadb -uroot -prootpassword orlia
 SOURCE /docker-entrypoint-initdb.d/init.sql;
 exit;
 
@@ -104,19 +104,19 @@ exit;
 
 ```bash
 # Database logs
-docker logs orlia-db
+docker logs orlia-db-25
 
 # Web server logs
-docker logs orlia-web
+docker logs orlia-web-25
 
 # phpMyAdmin logs
-docker logs orlia-phpmyadmin
+docker logs orlia-phpmyadmin-25
 ```
 
 ### Verify tables exist
 
 ```bash
-docker exec -it orlia-db mariadb -uroot -prootpassword -e "USE orlia; SHOW TABLES;"
+docker exec -it orlia-db-25 mariadb -uroot -prootpassword -e "USE orlia; SHOW TABLES;"
 ```
 
 Should show:

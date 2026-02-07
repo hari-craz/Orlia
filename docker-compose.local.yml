@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: orlia-web-local
+    container_name: orlia-web-local-25
     ports:
       - "10010:80"
     depends_on:
@@ -20,7 +20,7 @@ services:
 
   db:
     image: mariadb:10.6
-    container_name: orlia-db-local
+    container_name: orlia-db-local-25
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: orlia
@@ -38,7 +38,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin:latest
-    container_name: orlia-phpmyadmin-local
+    container_name: orlia-phpmyadmin-local-25
     ports:
       - "10011:80"
     environment:

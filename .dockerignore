@@ -3,5 +3,8 @@
 README.md
 LICENSE
 Dockerfile
+Dockerfile.db
 docker-compose.yml
+docker-compose.local.yml
+entrypoint.sh
 .dockerignore
