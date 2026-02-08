@@ -8,6 +8,7 @@ services:
       DB_NAME: ${DB_NAME:-orlia}
       DB_USER: ${DB_USER:-orlia}
       DB_PASSWORD: ${DB_PASSWORD:-orlia}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-orlia_root}
     volumes:
       - uploads:/var/www/html/uploads
     depends_on:
