@@ -1,9 +1,22 @@
 <?php
+ob_start();
+error_reporting(0);
+ini_set('display_errors', 0);
+
 include "db.php";
+
+header('Content-Type: application/json');
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Validate database connection before processing any request
+if (!$conn) {
+    echo json_encode(['status' => 500, 'message' => 'Database connection failed. Please try again later.']);
+    exit;
+}
+
 if (isset($_POST['Add_newuser'])) {
     try {
         // Validate Roll Number Length

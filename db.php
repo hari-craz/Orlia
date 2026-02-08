@@ -4,17 +4,36 @@
 error_reporting(0);
 ini_set('display_errors', 0);
 
-$servername = getenv('DB_HOST') ?: "localhost";
-$username = getenv('DB_USER') ?: "root";
-$password = getenv('DB_PASSWORD') ?: "";
-$dbname = getenv('DB_NAME') ?: "orlia";
-
-// Single connection attempt (retries removed for faster page loads)
-$conn = @mysqli_connect($servername, $username, $password, $dbname);
-
-// Set charset for proper UTF-8 support if connected
-if ($conn) {
-    mysqli_set_charset($conn, "utf8mb4");
+// Robust environment variable reader (works with Apache module, CGI, CLI)
+function _orlia_env($name, $default = '') {
+    $val = getenv($name);
+    if ($val !== false && $val !== '') return $val;
+    if (isset($_ENV[$name]) && $_ENV[$name] !== '') return $_ENV[$name];
+    if (isset($_SERVER[$name]) && $_SERVER[$name] !== '') return $_SERVER[$name];
+    return $default;
 }
-// Do NOT output anything here - let calling script handle errors
+
+$servername = _orlia_env('DB_HOST', 'localhost');
+$username   = _orlia_env('DB_USER', 'root');
+$password   = _orlia_env('DB_PASSWORD', '');
+$dbname     = _orlia_env('DB_NAME', 'orlia');
+
+// Retry logic for Docker environments (MySQL may need a moment after healthcheck)
+$conn = false;
+$maxRetries = 5;
+for ($i = 0; $i < $maxRetries; $i++) {
+    $conn = @mysqli_connect($servername, $username, $password, $dbname);
+    if ($conn) {
+        mysqli_set_charset($conn, "utf8mb4");
+        break;
+    }
+    if ($i < $maxRetries - 1) {
+        usleep(500000); // 500ms between retries
+    }
+}
+
+// Log connection error for debugging (to Apache error log, not screen)
+if (!$conn) {
+    error_log("Orlia DB Connection Failed: [" . mysqli_connect_errno() . "] " . mysqli_connect_error() . " (Host: $servername, User: $username, DB: $dbname)");
+}
 ?>
