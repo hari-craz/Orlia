@@ -9,6 +9,10 @@ function checkUserAccess($isPublic = false)
     if ($isPublic && !isset($_SESSION['userid'])) {
         return;
     }
+    // If public page and logged in, also allow access
+    if ($isPublic && isset($_SESSION['userid'])) {
+        return;
+    }
     // If protected page and NOT logged in, redirect to login
     // Or if logged in but on public page, check if allowed
     if (!isset($_SESSION['userid'])) {
@@ -34,9 +38,9 @@ function checkUserAccess($isPublic = false)
 
     // Define allowed pages for each role
     $allowed_pages = [
-        '2' => ['superAdmin.php', 'manageAdmins.php', 'overallParticipants.php', 'manageEvent.php', 'logout.php', 'votingDashboard.php', 'votingCount.php', 'votersList.php', 'photographyCollection.php', 'eventFeedback.php', 'export_db.php'], // Super Admin
-        '1' => ['eventAdmin.php', 'eventParticipants.php', 'logout.php', 'votingDashboard.php', 'votingCount.php', 'votersList.php', 'photographyCollection.php'], // Event Admin
-        '0' => ['adminDashboard.php', 'manageParticipants.php', 'logout.php', 'eventFeedback.php', 'manageAdmins.php', 'manageEvent.php', 'votingDashboard.php', 'votingCount.php', 'votersList.php', 'photographyCollection.php'] // Co-Admin
+        '2' => ['superAdmin.php', 'manageAdmins.php', 'overallParticipants.php', 'manageEvent.php', 'logout.php', 'votingDashboard.php', 'votingCount.php', 'votersList.php', 'photographyCollection.php', 'eventFeedback.php', 'export_db.php', 'day1.php', 'day2.php'], // Super Admin
+        '1' => ['eventAdmin.php', 'eventParticipants.php', 'logout.php', 'votingDashboard.php', 'votingCount.php', 'votersList.php', 'photographyCollection.php', 'day1.php', 'day2.php'], // Event Admin
+        '0' => ['adminDashboard.php', 'manageParticipants.php', 'logout.php', 'eventFeedback.php', 'manageAdmins.php', 'manageEvent.php', 'votingDashboard.php', 'votingCount.php', 'votersList.php', 'photographyCollection.php', 'day1.php', 'day2.php'] // Co-Admin
     ];
 
     // Determine Dashboard for redirect (optional, now we destroy session)
