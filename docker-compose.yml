@@ -7,7 +7,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: orlia-web
+    container_name: orlia26-web
     restart: unless-stopped
     ports:
       - "10012:80"
@@ -27,7 +27,7 @@ services:
   # MySQL Database
   orlia-db:
     image: mysql:8.0
-    container_name: orlia-mysql
+    container_name: orlia26-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root_secure_2026
@@ -48,7 +48,7 @@ services:
   # phpMyAdmin
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
-    container_name: orlia-phpmyadmin
+    container_name: orlia26-phpmyadmin
     restart: unless-stopped
     ports:
       - "10013:80"
