@@ -1,28 +1,36 @@
 <?php
 function checkUserAccess($isPublic = false)
 {
+    // Configure session for HTTPS/Cloudflare
+    $isHttps = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || 
+               (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+               (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on');
+    
     if (session_status() === PHP_SESSION_NONE) {
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'domain' => '',
+            'secure' => $isHttps,
+            'httponly' => true,
+            'samesite' => $isHttps ? 'None' : 'Lax'
+        ]);
         session_start();
     }
 
-    // If public page and NOT logged in, just return (allow access)
-    if ($isPublic && !isset($_SESSION['userid'])) {
-        return;
-    }
-    // If public page and logged in, also allow access
-    if ($isPublic && isset($_SESSION['userid'])) {
+    // If public page, allow access regardless of login status
+    if ($isPublic) {
         return;
     }
     // If protected page and NOT logged in, redirect to login
-    // Or if logged in but on public page, check if allowed
     if (!isset($_SESSION['userid'])) {
         header('Location: login.php');
         exit();
     }
 
-    // Check session timeout (30 minutes = 1800 seconds)
+    // Check session timeout (1 hour = 3600 seconds)
     // Using sliding expiration: Update time on every activity
-    if (isset($_SESSION['login_time']) && (time() - $_SESSION['login_time'] > 1800)) {
+    if (isset($_SESSION['login_time']) && (time() - $_SESSION['login_time'] > 3600)) {
         // Session has expired
         session_unset();
         session_destroy();
@@ -76,9 +84,4 @@ function checkUserAccess($isPublic = false)
         }
     </script>";
 }
-
-// Prevent caching for all authenticated pages
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
 ?>

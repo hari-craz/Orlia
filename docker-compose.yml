@@ -1,52 +1,73 @@
-services:
-  web:
-    build: .
-    ports:
-      - "${APP_PORT:-10012}:80"
-    environment:
-      DB_HOST: db
-      DB_NAME: ${DB_NAME:-orlia}
-      DB_USER: ${DB_USER:-orlia}
-      DB_PASSWORD: ${DB_PASSWORD:-orlia}
-      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-orlia_root}
-    volumes:
-      - uploads:/var/www/html/uploads
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
+# Orlia'26 Docker Compose for Portainer/TrueNAS
+# Ports: 10012 (Web App), 10013 (phpMyAdmin)
 
-  db:
-    image: mariadb:10.11
+services:
+  # PHP Application
+  orlia-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: orlia-web
+    restart: unless-stopped
+    ports:
+      - "10012:80"
     environment:
-      MYSQL_DATABASE: ${DB_NAME:-orlia}
-      MYSQL_USER: ${DB_USER:-orlia}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-orlia}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-orlia_root}
-      MARIADB_AUTO_UPGRADE: "1"
+      - DB_HOST=orlia-db
+      - DB_USER=orlia_user
+      - DB_PASSWORD=orlia_secure_pass_2026
+      - DB_NAME=orlia
     volumes:
-      - db_data:/var/lib/mysql
-      - ./assets/Schema:/docker-entrypoint-initdb.d:ro
+      - orlia-uploads:/var/www/html/uploads
+    depends_on:
+      orlia-db:
+        condition: service_healthy
+    networks:
+      - orlia-network
+
+  # MySQL Database
+  orlia-db:
+    image: mysql:8.0
+    container_name: orlia-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_secure_2026
+      MYSQL_DATABASE: orlia
+      MYSQL_USER: orlia_user
+      MYSQL_PASSWORD: orlia_secure_pass_2026
+    volumes:
+      - orlia-db-data:/var/lib/mysql
+      - ./assets/Schema/orlia.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_secure_2026"]
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
+    networks:
+      - orlia-network
 
+  # phpMyAdmin
   phpmyadmin:
-    image: phpmyadmin:latest
-    ports:
-      - "${PMA_PORT:-10013}:80"
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-orlia_root}
-    depends_on:
-      db:
-        condition: service_healthy
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: orlia-phpmyadmin
     restart: unless-stopped
+    ports:
+      - "10013:80"
+    environment:
+      PMA_HOST: orlia-db
+      PMA_USER: orlia_user
+      PMA_PASSWORD: orlia_secure_pass_2026
+      UPLOAD_LIMIT: 100M
+    depends_on:
+      - orlia-db
+    networks:
+      - orlia-network
 
 volumes:
-  db_data:
-  uploads:
+  orlia-db-data:
+    driver: local
+  orlia-uploads:
+    driver: local
+
+networks:
+  orlia-network:
+    driver: bridge
