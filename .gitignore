@@ -1,0 +1,7 @@
+.env
+uploads/events/*
+uploads/photos/*
+uploads/videos/*
+uploads/songs/*
+!uploads/.gitkeep
+!uploads/events/.gitkeep

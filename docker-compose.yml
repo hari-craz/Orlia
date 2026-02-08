@@ -1,0 +1,40 @@
+services:
+  web:
+    build: .
+    ports:
+      - "${APP_PORT:-10012}:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: ${DB_NAME:-orlia}
+      DB_USER: ${DB_USER:-orlia}
+      DB_PASSWORD: ${DB_PASSWORD:-orlia}
+    volumes:
+      - uploads:/var/www/html/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mariadb:10.11
+    ports:
+      - "${DB_PORT:-10013}:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-orlia}
+      MYSQL_USER: ${DB_USER:-orlia}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-orlia}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-orlia_root}
+      MARIADB_AUTO_UPGRADE: "1"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./assets/Schema:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  uploads:
